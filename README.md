@@ -1,62 +1,61 @@
-# Chainlens
+## Usage
 
-Blockchain Explorer for Besu, Quorum and Ethereum-compatible blockchains
+Clone the repo, navigate to the cloned directory and run the instance with:
 
-![Chainlens Dashboard](./_images/chainlens-dashboard.png "Chainlens dashboard")
+```bash
+cd docker-compose
+docker-compose pull
+NODE_ENDPOINT=http://<node_endpoint> docker-compose up
+```
+The explorer runs on port `80` by default, if you want to use a custom port e.g 26000, set the `PORT` environment variable and the explorer will be accessible via http://localhost:26000.
 
-## Introduction
+```bash
+NODE_ENDPOINT=http://localhost:8585 PORT=26000 docker-compose up -d
+```
 
-Chainlens is a data and analytics platform for Ethereum-compatible blockchains.
+Note that if setting `NODE_ENDPOINT` to a local Ethereum instance, you may need to use the IP address associated with the Docker bridged interface. 
 
-It provides a rich API, and easy-to-use interface to provide information on the various assets such as tokens, and smart contracts deployed on blockchains.
+On Linux, the bridged adapter should be 172.16.239.1, as denoted in docker-compose.yml. To connect to a local node, start with the command:
 
-A free developer edition is available in this repo, we also provide hosted plans for it. They are outlined below.
+```bash
+NODE_ENDPOINT=http://172.16.239.1:8545 docker-compose up
+```
 
-## Free plan
+On MacOS and Windows, a platform sepcific command is required due to limitations around the Docker network stack on MacOS. This is as follows: 
 
-This distribution of Chainlens is a free version designed for viewing public and private Ethereum networks. It supports  
-[Quorum](https://github.com/ConsenSys/quorum), [Hyperledger Besu](https://besu.hyperledger.org/en/stable/) and [Ethereum](https://github.com/ethereum/go-ethereum) networks.
+```bash
+NODE_ENDPOINT=http://host.docker.internal:8545 docker-compose up
+```
 
-![Chainlens Free Screenshot](./_images/chainlens-free.png "Chainlens free")
+Note that in both cases, your local instance of geth must be started with `--rpcaddr 0.0.0.0` and `--rpcvhosts="*"`, or Sirato will be unable to access it.
 
-## Hosted plans
+Also note that on Windows Chainlens may take a long time to come up (sometimes up to 20 minutes) due to Windows filesystem performance issues with Linux VMs.
 
-Web3 Labs provides hosted plans that provide additional functionality including:
+Append the `-d` argument to run the containers in the backgroud
 
-- Custom branding and hosting at a custom domain
-- Dedicated views of tokens
-- Smart contract management and source code upload
-- OpenAPI back-end
-- Integrations with business intelligence tools such as Tableau Microsoft PowerBI and Qlik
-- Production SLAs
-- Large transaction volumes (100,000,000+)
+You will be able to access the Explorer UI via:
 
-![Chainlens Hosted Screenshot](./_images/chainlens-hosted.png "Chainlens customer instance Palm with verified source code")
+* http://localhost/
 
-The advantage of the hosted plan is that all you need to provide is a compatible web3 client endpoint, and we will do the rest.
+To stop the containers use:
 
-You can view more information on these plans [here](https://chainlens.com), or contact Web3 Labs directly via [hi@web3labs.com](mailto:hi@web3labs.com?subject=Chainlens%20hosted%20plans).
+```bash
+docker-compose down
+```
 
-### Deployment instructions
+To connect to new network you should remove the volumes associated with the old network
 
-This repo contains configuration to run the free version using either Docker Compose or Kubernetes.
+```bash
+docker-compose down -v
+```
 
-Follow the appropriate guide to run Chainlens locally against an Ethereum, Quorum or Hyperledger Besu networks.
+## Quorum & Hyperledger Besu 
 
-- [Docker Compose deployment](docker-compose/README.md)
-- [Kubernetes deployment](k8s/README.md)
+To run the Quroum 7 node example with Chainlens free [follow these instructions](examples/Quorum_Example.md). 
 
-### System Requirements
+To run the Pantheon-quickstart privacy network example [follow these instructions](examples/Pantheon_Privacy_Example.md).
 
-Recommended minimum system requirements.
+## Limitations
 
-| Components | Description |
-|-----------|-------------|
-|  CPUs        | 1 CPU |
-|  Memory      | 8 GB |
-|  Disk        | Proportional to the blockchain size |
-
-## License
-
-Chainlens is free for non-commercial use and evaluation purposes only, for further details refer to the [LICENSE](LICENSE). To speak to use about commercial use you can email us via `hi <at> web3labs.com` or submit an enquiry [here][([[https://pages.web3labs.com/sirato-enterprise](https://chainlens.com/contact/)](https://chainlens.com/contact/).
+ - Due to a [limitation](https://github.com/moby/moby/issues/1143) with Docker, you may only have one instance of the Explorer running at a time.
 
